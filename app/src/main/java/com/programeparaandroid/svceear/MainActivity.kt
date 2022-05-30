@@ -1,7 +1,5 @@
 package com.programeparaandroid.svceear
 
-import android.app.FragmentTransaction
-import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -11,6 +9,10 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import com.programeparaandroid.svceear.databinding.ActivityMainBinding
+import retrofit2.Call
+import retrofit2.http.Field
+import retrofit2.http.FormUrlEncoded
+import retrofit2.http.POST
 
 class MainActivity : AppCompatActivity() {
 
@@ -58,13 +60,20 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration)
                 || super.onSupportNavigateUp()
     }
 
+    interface enviaVisitante{
+        @FormUrlEncoded
+        @POST("verifica.php")
+        fun setVisitante (
+            //@Field("cpf") cpf: String,
+            //@Field("senha") senha: String
+        ) : Call<Visitante>
+    }
 
 
 }
