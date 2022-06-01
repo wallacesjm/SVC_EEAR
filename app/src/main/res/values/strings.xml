@@ -1,8 +1,8 @@
 <resources>
-    <string name="app_name">SVC EEAR</string>
+    <string name="app_name">Formatura EEAR</string>
     <string name="action_settings">Sair</string>
     <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label">Verificação de convidados</string>
+    <string name="first_fragment_label">Formatura EEAR</string>
     <string name="second_fragment_label">Second Fragment</string>
     <string name="next">Próximo</string>
     <string name="previous">Previous</string>
@@ -19,7 +19,7 @@
     <string name="empty">---</string>
     <string name="site_name">Site Name</string>
     <string name="scan_a_code">Scan a QR Code</string>
-    <string name="result_not_found">Result Not Found</string>
+    <string name="result_not_found">Leitura de QRCode cancelada</string>
     <string name="show_scanner_from_fragment">Show Scanner From Fragment</string>
 
 </resources>

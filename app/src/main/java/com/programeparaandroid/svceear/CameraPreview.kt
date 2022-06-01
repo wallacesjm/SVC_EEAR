@@ -26,6 +26,7 @@ class CameraPreview(
         // The Surface has been created, now tell the camera where to draw the preview.
         mCamera.apply {
             try {
+                setDisplayOrientation(0)
                 setPreviewDisplay(holder)
                 startPreview()
             } catch (e: IOException) {
@@ -60,6 +61,7 @@ class CameraPreview(
         mCamera.apply {
             try {
                 setPreviewDisplay(mHolder)
+
                 startPreview()
             } catch (e: Exception) {
                 Log.d(TAG, "Error starting camera preview: ${e.message}")

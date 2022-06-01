@@ -2,38 +2,49 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
     android:id="@+id/constraint"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/white"
     android:padding="@dimen/padding_medium">
 
 
+    <TextView
+        android:id="@+id/titulo_visitante"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Dados do visitante"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/nome_visitante_input_layout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/nome_visitante_input_layout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toTopOf="@+id/cpf_visitante_input_layout"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/titulo_visitante">
 
         <EditText
             android:id="@+id/nome_visitante"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
             android:ems="10"
-            android:hint="Visitante" />
-
+            android:focusable="false"
+            android:hint="Nome" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/cpf_visitante_input_layout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-
-        app:layout_constraintBottom_toTopOf="@+id/nome_aluno_input_layout"
+        app:layout_constraintBottom_toTopOf="@+id/titulo_ler_cpf"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/nome_visitante_input_layout">
@@ -42,46 +53,70 @@
             android:id="@+id/cpf_visitante"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:ems="10"
             android:drawableRight="@android:drawable/ic_menu_search"
-            android:hint="CPF" />
-
+            android:ems="10"
+            android:inputType="number"
+            android:hint="CPF"
+            android:text=""/>
     </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:id="@+id/titulo_ler_cpf"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="Digitar CPF"
+        app:layout_constraintBottom_toTopOf="@+id/divider"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cpf_visitante_input_layout" />
 
     <com.google.android.material.divider.MaterialDivider
         android:id="@+id/divider"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/titulo_aluno"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/titulo_ler_cpf" />
+
+    <TextView
+        android:id="@+id/titulo_aluno"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Dados do aluno"
+        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/nome_aluno_input_layout"
-        app:layout_constraintTop_toBottomOf="@id/cpf_visitante_input_layout" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/divider" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/nome_aluno_input_layout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toTopOf="@+id/milhao_aluno_input_layout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/divider">
+        app:layout_constraintTop_toBottomOf="@+id/titulo_aluno">
 
         <EditText
             android:id="@+id/nome_aluno"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
             android:ems="10"
-            android:hint="Aluno" />
+            android:hint="Nome"
+            android:focusable="false"/>
 
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/milhao_aluno_input_layout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toTopOf="@+id/esquadrao_aluno_input_layout"
@@ -93,15 +128,15 @@
             android:id="@+id/milhao_aluno"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
             android:ems="10"
-            android:hint="Milhão" />
+            android:hint="Milhão"
+            android:focusable="false"/>
 
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/esquadrao_aluno_input_layout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toTopOf="@+id/btnScan"
@@ -114,25 +149,84 @@
             android:id="@+id/esquadrao_aluno"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
             android:ems="10"
-            android:hint="Esquadrão" />
+            android:hint="Esquadrão"
+            android:focusable="false"/>
 
     </com.google.android.material.textfield.TextInputLayout>
 
 
-    <Button
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btnScan"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/scan_qr_code"
+        android:layout_gravity="bottom|end"
+        android:layout_marginTop="8dp"
+        app:tint="@android:color/white"
+        app:layout_constraintBottom_toTopOf="@+id/titulo_scan"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/btnSave"
+        app:layout_constraintTop_toBottomOf="@+id/esquadrao_aluno_input_layout"
+        app:srcCompat="@android:drawable/ic_search_category_default" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnSave"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginTop="8dp"
+        app:tint="@android:color/white"
+        app:layout_constraintBottom_toTopOf="@+id/titulo_save"
+        app:layout_constraintEnd_toStartOf="@+id/btnScan"
+        app:layout_constraintStart_toEndOf="@id/btnCancel"
+        app:layout_constraintTop_toBottomOf="@+id/esquadrao_aluno_input_layout"
+        android:backgroundTint="@android:color/darker_gray"
+        app:srcCompat="@android:drawable/ic_menu_save" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnCancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:tint="@android:color/white"
+        android:layout_gravity="bottom|end"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/titulo_cancel"
+        app:layout_constraintEnd_toStartOf="@+id/btnSave"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/esquadrao_aluno_input_layout"
+        android:backgroundTint="@android:color/darker_gray"
+        app:srcCompat="@android:drawable/ic_popup_sync" />
+
+    <TextView
+        android:id="@+id/titulo_scan"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="QRCode"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.9">
 
-    </Button>
+        app:layout_constraintStart_toEndOf="@id/titulo_save"
+        app:layout_constraintTop_toBottomOf="@+id/btnScan" />
+
+    <TextView
+        android:id="@+id/titulo_save"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Registrar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/titulo_scan"
+
+        app:layout_constraintStart_toEndOf="@id/titulo_cancel"
+        app:layout_constraintTop_toBottomOf="@+id/btnSave" />
+
+    <TextView
+        android:id="@+id/titulo_cancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cancelar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/titulo_save"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnCancel" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

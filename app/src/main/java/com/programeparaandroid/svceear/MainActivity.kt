@@ -1,6 +1,7 @@
 package com.programeparaandroid.svceear
 
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
@@ -8,6 +9,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.room.Room
 import com.programeparaandroid.svceear.databinding.ActivityMainBinding
 import retrofit2.Call
 import retrofit2.http.Field
@@ -33,13 +35,14 @@ class MainActivity : AppCompatActivity() {
 
 
 
-
+        /*
         binding.fab.setOnClickListener { view ->
             /*Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()*/
 
 
-        }
+        }*/
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -68,11 +71,13 @@ class MainActivity : AppCompatActivity() {
 
     interface enviaVisitante{
         @FormUrlEncoded
-        @POST("verifica.php")
+        @POST("sincronismo_visitante.php")
+
+
         fun setVisitante (
-            //@Field("cpf") cpf: String,
+            @Field("sinc_visitante_android") cpf: Int
             //@Field("senha") senha: String
-        ) : Call<Visitante>
+        ) : Call<ArrayList<Visitante>>
     }
 
 
