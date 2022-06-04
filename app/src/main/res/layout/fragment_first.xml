@@ -8,6 +8,27 @@
     android:background="@android:color/white"
     android:padding="@dimen/padding_medium">
 
+    <TextView
+        android:id="@+id/titulo_posto"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Posto de identificação"
+        app:layout_constraintBottom_toTopOf="@id/spinner"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.92"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Spinner
+        android:id="@+id/spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        app:layout_constraintBottom_toTopOf="@+id/titulo_visitante"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/titulo_visitante"
@@ -18,7 +39,7 @@
         app:layout_constraintBottom_toTopOf="@+id/nome_visitante_input_layout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/spinner"/>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/nome_visitante_input_layout"
@@ -99,9 +120,9 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@+id/milhao_aluno_input_layout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/esquadrao_aluno_input_layout"
         app:layout_constraintTop_toBottomOf="@+id/titulo_aluno">
 
         <EditText
@@ -109,28 +130,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="Nome"
-            android:focusable="false"/>
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/milhao_aluno_input_layout"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@+id/esquadrao_aluno_input_layout"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/nome_aluno_input_layout">
-
-        <EditText
-            android:id="@+id/milhao_aluno"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="Milhão"
-            android:focusable="false"/>
+            android:focusable="false"
+            android:hint="Nome" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -139,19 +140,19 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/nome_aluno_input_layout"
+
         app:layout_constraintBottom_toTopOf="@+id/btnScan"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/milhao_aluno_input_layout"
-        app:layout_constraintVertical_bias="0.48000002">
+        app:layout_constraintStart_toStartOf="parent">
 
         <EditText
             android:id="@+id/esquadrao_aluno"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="Esquadrão"
-            android:focusable="false"/>
+            android:focusable="false"
+            android:hint="Esquadrão" />
 
     </com.google.android.material.textfield.TextInputLayout>
 

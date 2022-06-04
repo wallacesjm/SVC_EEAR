@@ -11,5 +11,6 @@ data class VisitanteDB(
     @ColumnInfo(name = "cpf") val cpf: String?,
     @ColumnInfo(name = "nome_guerra") val nome_guerra: String?,
     @ColumnInfo(name = "milhao") val milhao: String?,
-    @ColumnInfo(name = "esquadrao") val esquadrao: String?
+    @ColumnInfo(name = "esquadrao") val esquadrao: String?,
+    @ColumnInfo(name = "padrinho") val padrinho: Boolean?
 )

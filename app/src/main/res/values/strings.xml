@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Formatura EEAR</string>
     <string name="action_settings">Sair</string>
+    <string name="action_share">Enviar relatório</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">Formatura EEAR</string>
     <string name="second_fragment_label">Second Fragment</string>
@@ -21,5 +22,11 @@
     <string name="scan_a_code">Scan a QR Code</string>
     <string name="result_not_found">Leitura de QRCode cancelada</string>
     <string name="show_scanner_from_fragment">Show Scanner From Fragment</string>
+
+    <string-array name="postos">
+        <item>Portão Principal</item>
+        <item>CTE</item>
+
+    </string-array>
 
 </resources>
