@@ -2,7 +2,7 @@ package com.programeparaandroid.svceear
 
 import kotlin.properties.Delegates
 
-class Visitante {
+class Convidado {
     lateinit var nome_completo: String
     lateinit var cpf: String
     lateinit var nome_guerra: String

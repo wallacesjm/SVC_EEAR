@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Formatura EEAR</string>
     <string name="action_settings">Sair</string>
-    <string name="action_share">Enviar relatório</string>
+    <string name="action_share">Ver relatório</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">Formatura EEAR</string>
     <string name="second_fragment_label">Second Fragment</string>
@@ -10,7 +10,6 @@
 
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
-
 
 
     <string name="helper_activity">HelperActivity</string>

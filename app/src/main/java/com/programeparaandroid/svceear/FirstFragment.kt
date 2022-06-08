@@ -1,6 +1,7 @@
 package com.programeparaandroid.svceear
 
 import android.app.Activity
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -18,43 +19,33 @@ import android.widget.Spinner
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.Timestamp
+import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import com.google.zxing.integration.android.IntentIntegrator
 import com.programeparaandroid.svceear.databinding.FragmentFirstBinding
-import org.json.JSONException
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import org.apache.poi.ss.usermodel.Cell
+import org.apache.poi.ss.usermodel.CellType
+import org.apache.poi.ss.usermodel.WorkbookFactory
+import org.apache.poi.ss.util.NumberToTextConverter
+import java.io.File
+import java.io.FileInputStream
+import kotlin.random.Random
 
-
-/**
- * A simple [Fragment] subclass as the default destination in the navigation.
- */
 class FirstFragment : Fragment() {
 
     private var _binding: FragmentFirstBinding? = null
     private lateinit var qrScanIntegrator: IntentIntegrator
+    val db = Firebase.firestore
 
-
-
-    private val retrofit = Retrofit.Builder()
-        .addConverterFactory(GsonConverterFactory.create())
-        .baseUrl("http://192.168.0.148/visitanteseear/public/webservices/")
-        .build()
-        .create(MainActivity.enviaVisitante::class.java)
-
-    // This property is only valid between onCreateView and
-    // onDestroyView.
     private val binding get() = _binding!!
-
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
+        setHasOptionsMenu(true)
         _binding = FragmentFirstBinding.inflate(inflater, container, false)
         return binding.root
 
@@ -64,41 +55,41 @@ class FirstFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupScanner()
         setOnClickListener()
-        val visitante = Visitante()
-        visitante.cpf = ("cpf")
-
 
         val spinner: Spinner = binding.spinner
+
+        val cacheFile = File(requireContext().dataDir, "lista15.xls")
+
+        // - Add alunos
+        /*
+        for (i in 1..389){
+            lerExcelParaAddAluno(cacheFile, i)
+        }*/
+
+
+        // - Add convidados
+        /*
+        for (i in 1..389){
+            lerExcelParaAddConvidado(cacheFile, i)
+        }*/
+
+        // - Add convidados fake
+        /*
+        for (i in 51..99){
+            criaConvidadoFake("000000000$i")
+        }*/
+
+
         context?.let {
             ArrayAdapter.createFromResource(
                 it,
                 R.array.postos,
                 android.R.layout.simple_spinner_item
             ).also { adapter ->
-                // Specify the layout to use when the list of choices appears
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                // Apply the adapter to the spinner
                 spinner.adapter = adapter
             }
         }
-
-        try{
-            val visitantedb2 = VisitanteDB(2,"Jorge Luis Silva dos Santos","01337453765","JORGE SANTOS","N/I","CFS", true)
-            val visitantedb3 = VisitanteDB(3,"Debora Gomes de Andrade","08520805736","JORGE SANTOS","N/I","CFS", true)
-            val visitantedb4 = VisitanteDB(4,"Margarete Raimunda dos Santos Ferreira","01276231750","MATHEUS","N/I","EAGS", true)
-            val visitantedb5 = VisitanteDB(5,"Gilmar Alves Ferreira","02557361771","MATHEUS","N/I","EAGS", true)
-            val visitantedb6 = VisitanteDB(6,"THAIS FERREIRA CAMPOS ","18122134769","MATHEUS","N/I","EAGS", false)
-            val visitantedb7 = VisitanteDB(7,"LUCINEIA FERREIRA ABRAHÃO","00952102706","MATHEUS","N/I","EAGS", false)
-            val visitantedb8 = VisitanteDB(8,"Lais Alves Ferreira","01419097733","MATHEUS","N/I","EAGS", false)
-            val visitantedb9 = VisitanteDB(9,"Maria Alves de souza","54886457720","MATHEUS","N/I","EAGS", false)
-            val visitantedb10 = VisitanteDB(10,"Vitória  dos Santos Ferreira","19806143779","MATHEUS","N/I","EAGS", false)
-
-            MyApplication.database?.userDao()?.insertAll(visitantedb2,visitantedb3, visitantedb4,
-                visitantedb5, visitantedb6, visitantedb7, visitantedb8, visitantedb9, visitantedb10)
-        } catch (e: Exception){
-
-        }
-
 
 
 
@@ -110,82 +101,155 @@ class FirstFragment : Fragment() {
 
             when {
 
-                //Check if it is the Enter-Key,      Check if the Enter Key was pressed down
                 ((keyCode == KeyEvent.KEYCODE_ENTER) && (event.action == KeyEvent.ACTION_DOWN)) -> {
 
-                    val visitante1: VisitanteDB? = buscaNoBanco(binding.cpfVisitante.text.toString())
-                    try{
-                        if(visitante1?.padrinho ==false){
-                            if(binding.spinner.selectedItem.equals("CTE")){
-                                habilitaBotoes(false)
-                                exibeToast("nao_autorizado")
-                                preencheCampos(visitante1)
-
-
-                            } else {
-                                preencheCampos(visitante1)
-                                exibeToast("relacionado")
-                                habilitaBotoes(true)
-                            }
-                        } else {
-                            preencheCampos(visitante1)
-                            exibeToast("relacionado")
-                            habilitaBotoes(true)
-                        }
-                    } catch(e:Exception){
-                        habilitaBotoes(false)
-                        exibeToast("nao_relacionado")
-                    }
-
-
-
-
-
-
-
-
+                    verificaConvidado(binding.cpfVisitante.text.toString())
 
 
 
                     hideKeyboard()
 
-                    //return true
                     return@setOnKeyListener true
                 }
+
                 else -> false
             }
-
 
         }
 
         binding.btnSave.setOnClickListener{
-            exibeToast("registrado")
-
-        }
-
-
-        /*
-        binding.buttonFirst.setOnClickListener {
-            findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
-        }*/
-    }
-
-    private fun verificaPadrinho(visitante: Visitante){
-        if(visitante.padrinho){
-
-        } else {
-
+            registraAcesso()
         }
     }
+
+    private fun verificaConvidado(qrcode: String) {
+        db.collection("convidados.fake")
+            .whereEqualTo("cpf", qrcode)
+            .get()
+            .addOnSuccessListener { result ->
+                if (result.size() > 0) {
+                    for (document in result) {
+
+                        val convidado = Convidado()
+                        convidado.nome_completo = document.data["nome_completo"].toString()
+                        convidado.cpf = document.data["cpf"].toString()
+                        convidado.padrinho = document.data["padrinho"] as Boolean
+                        convidado.esquadrao = "Aguardando atualização..."
+
+                        val docRef1: DocumentReference = document.data["aluno"] as DocumentReference
+                        convidado.nome_guerra = docRef1.id
+
+                        db.collection("alunos.fake").document(docRef1.id)
+                            .get()
+                            .addOnSuccessListener { result2 ->
+                                convidado.nome_guerra = result2.data?.get("nome_guerra").toString()
+                                convidado.esquadrao = result2.data?.get("esquadrao").toString()
+                                verificaRegistro(convidado)
+                            }
+                    }
+                } else {
+                    habilitaBotoes(false)
+                    exibeToast("nao_relacionado")
+                    registraTentativaAcesso()
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.w(TAG, "Error getting documents.", exception)
+            }
+    }
+
+    private fun contaConvidado() {
+        db.collection("convidados")
+            .get()
+            .addOnSuccessListener { result ->
+                for(document in result){
+                    if(document["cpf"].toString().length < 11){
+                        Log.d("CPF",document["cpf"].toString())
+
+                    }
+                }
+
+            }
+            .addOnFailureListener { exception ->
+                Log.w(TAG, "Error getting documents.", exception)
+            }
+    }
+
+    private fun verificaRegistro(convidado: Convidado){
+
+        var contagem = 0
+        db.collection("registros_acesso")
+            .whereEqualTo("convidado_cpf", convidado.cpf)
+            .whereEqualTo("posto",binding.spinner.selectedItem.toString())
+            .get()
+            .addOnSuccessListener { result ->
+                if(result.size() > 0){
+                    for(document in result){
+                        if(contagem == 0){
+                            exibeToast("registro_anterior_existente")
+                        }
+                        contagem++
+                    }
+                } else {
+                    if(convidado.padrinho){
+                        exibeToast("relacionado")
+                    } else {
+
+                        if(binding.spinner.selectedItem.toString().equals("CTE")){
+                            exibeToast("nao_autorizado")
+                        } else {
+                            exibeToast("relacionado")
+                        }
+                    }
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.w(TAG, "Error getting documents.", exception)
+            }
+
+        preencheCampos(convidado)
+        habilitaBotoes(true)
+    }
+
+    private fun registraAcesso(){
+        val acesso = hashMapOf(
+            "convidado_cpf" to binding.cpfVisitante.text.toString(),
+            "posto" to binding.spinner.selectedItem.toString(),
+            "data_hora" to Timestamp.now()
+        )
+
+        db.collection("registros_acesso")
+            .add(acesso)
+            .addOnSuccessListener { exibeToast("registro_efetuado") }
+            .addOnFailureListener { exibeToast("registro_nao_efetuado") }
+
+    }
+
+    private fun registraTentativaAcesso(){
+        val acesso = hashMapOf(
+            "qrcode" to binding.cpfVisitante.text.toString(),
+            "posto" to binding.spinner.selectedItem.toString(),
+            "data_hora" to Timestamp.now()
+        )
+
+        db.collection("tentativas_acesso")
+            .add(acesso)
+
+    }
+
     private fun limpaCampos() {
         binding.nomeVisitante.text.clear()
         binding.cpfVisitante.text.clear()
         binding.nomeAluno.text.clear()
-        //binding.milhaoAluno.text.clear()
         binding.esquadraoAluno.text.clear()
         habilitaBotoes(false)
+    }
 
-
+    private fun limpaCamposExcetoCPF() {
+        binding.nomeVisitante.text.clear()
+        binding.nomeAluno.text.clear()
+        binding.esquadraoAluno.text.clear()
+        habilitaBotoes(false)
     }
 
     private fun setupScanner() {
@@ -198,132 +262,33 @@ class FirstFragment : Fragment() {
     }
 
     private fun performAction() {
-        // Code to perform action when button is clicked.
         qrScanIntegrator.initiateScan()
-
-
-
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         val result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data)
         if (result != null) {
-            // If QRCode has no data.
             if (result.contents == null) {
                 Toast.makeText(activity, R.string.result_not_found, Toast.LENGTH_LONG).show()
             } else {
-                // If QRCode contains data.
-                try {
-
-                    val visitante1: VisitanteDB? = buscaNoBanco(result.contents)
-                    try{
-                        if(visitante1?.padrinho ==false){
-                            if(binding.spinner.selectedItem.equals("CTE")){
-                                exibeToast("nao_autorizado")
-                                preencheCampos(visitante1)
-
-                            } else {
-                                preencheCampos(visitante1)
-                                exibeToast("relacionado")
-                                habilitaBotoes(true)
-                            }
-                        } else {
-                            preencheCampos(visitante1)
-                            exibeToast("relacionado")
-                            habilitaBotoes(true)
-                        }
-                    } catch(e:Exception){
-                        habilitaBotoes(false)
-                        exibeToast("nao_relacionado")
-                    }
-
-
-
-
-
-
-                    val visitante = Visitante()
-                    visitante.cpf = "cpf"
-
-
-                    chamaAPI(visitante)
-
-
-                } catch (e: JSONException) {
-                    e.printStackTrace()
-                    exibeToast("nao_relacionado")
-                    habilitaBotoes(false)
-                    // Data not in the expected format. So, whole object as toast message.
-                }
+                verificaConvidado(result.contents)
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data)
         }
     }
 
-    private fun buscaNoBanco(result: String): VisitanteDB? {
-        val visitante1: VisitanteDB? = MyApplication.database?.userDao()?.findByCPF(result)
-        return visitante1
-    }
-
-    private fun preencheCampos(visitante1: VisitanteDB?) {
-        binding.nomeVisitante.setText(visitante1!!.nome_completo)
-        binding.cpfVisitante.setText(visitante1.cpf)
-        binding.nomeAluno.setText(visitante1.nome_guerra)
-        //binding.milhaoAluno.setText(visitante1.milhao)
-        binding.esquadraoAluno.setText(visitante1.esquadrao)
+    private fun preencheCampos(convidado: Convidado) {
+        binding.nomeVisitante.setText(convidado!!.nome_completo)
+        binding.cpfVisitante.setText(convidado.cpf)
+        binding.nomeAluno.setText(convidado.nome_guerra)
+        binding.esquadraoAluno.setText(convidado.esquadrao)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
-
-    private fun chamaAPI(visitante: Visitante) {
-        retrofit.setVisitante(
-            0
-        ).enqueue(object : Callback<ArrayList<Visitante>> {
-            override fun onFailure(
-                call: Call<ArrayList<Visitante>>,
-                t: Throwable
-            ) {
-                Log.d("Erro1: ", t.toString())
-            }
-
-            override fun onResponse(
-                call: Call<ArrayList<Visitante>>,
-                response: Response<ArrayList<Visitante>>
-            ) {
-
-                if (response.isSuccessful) {
-
-                    response.body()?.let {
-
-                        Log.d("resposta", response.body()!!.get(1).nome_completo)
-
-/*
-                        if (response.body()!!.cpf.equals("vazio")) {
-                            //exibeToast(false)
-                        } else {
-
-                            binding.nomeVisitante.setText(response.body()!!.nome)
-                            binding.cpfVisitante.setText(response.body()!!.cpf)
-                            binding.nomeAluno.setText(response.body()!!.nome_aluno)
-                            binding.milhaoAluno.setText(response.body()!!.milhao_aluno)
-                            binding.esquadraoAluno.setText(response.body()!!.esquadrao_aluno)
-                            binding.constraint.setBackgroundColor(Color.parseColor("#008000"))
-                            //exibeToast(true)
-                        }
-                        */
-
-                    }
-                } else {
-                    Log.d("erro",response.toString())
-                }
-            }
-        })
-    }
-
 
     private fun exibeToast(respostaServidor:String){
         if(respostaServidor.equals("relacionado")){
@@ -332,7 +297,6 @@ class FirstFragment : Fragment() {
                     .setAction("Action", null)
                     .setBackgroundTint(Color.parseColor("#008000"))
                     .setTextColor(Color.WHITE)
-                    .setDuration(7500)
                     .show()
             }
 
@@ -347,10 +311,10 @@ class FirstFragment : Fragment() {
                     .setAction("Action", null)
                     .setBackgroundTint(Color.parseColor("#FF0000"))
                     .setTextColor(Color.WHITE)
-                    .setDuration(7500)
                     .show()
             }
-            habilitaBotoes(true)
+            habilitaBotoes(false)
+            limpaCamposExcetoCPF()
             val toneGen1 = ToneGenerator(AudioManager.STREAM_MUSIC, 100)
             toneGen1.startTone(ToneGenerator.TONE_CDMA_EMERGENCY_RINGBACK, 100)
             toneGen1.startTone(ToneGenerator.TONE_CDMA_EMERGENCY_RINGBACK, 100)
@@ -359,27 +323,39 @@ class FirstFragment : Fragment() {
             habilitaBotoes(false)
             exibeToast("limpo")
 
-        } else if(respostaServidor.equals("registrado")){
-            Toast.makeText(activity, "Registro efetuado com sucesso", Toast.LENGTH_LONG).show()
-            limpaCampos()
-            habilitaBotoes(false)
-
-        } else if(respostaServidor.equals("nao_autorizado")){
+        }  else if(respostaServidor.equals("nao_autorizado")){
 
             view?.let {
                 Snackbar.make(it, "Convidado não autorizado neste ponto", Snackbar.LENGTH_LONG)
                     .setAction("Action", null)
                     .setBackgroundTint(Color.BLUE)
-                    .setDuration(7500)
                     .show()
             }
 
-            limpaCampos()
+
             habilitaBotoes(true)
             val toneGen1 = ToneGenerator(AudioManager.STREAM_MUSIC, 100)
             toneGen1.startTone(ToneGenerator.TONE_CDMA_EMERGENCY_RINGBACK, 100)
             toneGen1.startTone(ToneGenerator.TONE_CDMA_EMERGENCY_RINGBACK, 100)
+        } else if(respostaServidor.equals("registro_efetuado")) {
+            Toast.makeText(activity, "Registro efetuado com sucesso", Toast.LENGTH_LONG).show()
+            limpaCampos()
+            habilitaBotoes(false)
+        } else if(respostaServidor.equals("registro_nao_efetuado")) {
+            Toast.makeText(activity, "Registro não efetuado. Tente novamente.", Toast.LENGTH_LONG).show()
+        } else if(respostaServidor.equals("registro_anterior_existente")){
 
+            view?.let {
+                Snackbar.make(it, "QRCode já registrado nesse ponto.", Snackbar.LENGTH_LONG)
+                    .setAction("Action", null)
+                    .setBackgroundTint(Color.YELLOW)
+                    .setTextColor(Color.BLACK)
+                    .show()
+            }
+
+            val toneGen1 = ToneGenerator(AudioManager.STREAM_MUSIC, 100)
+            toneGen1.startTone(ToneGenerator.TONE_CDMA_EMERGENCY_RINGBACK, 100)
+            toneGen1.startTone(ToneGenerator.TONE_CDMA_EMERGENCY_RINGBACK, 100)
         }
     }
 
@@ -410,5 +386,114 @@ class FirstFragment : Fragment() {
         val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
         inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
     }
+
+
+    fun lerExcelParaAddAluno(filepath: File, linha: Int) {
+        val inputStream = FileInputStream(filepath)
+        var xlWb = WorkbookFactory.create(inputStream)
+
+        val xlWs = xlWb.getSheetAt(0)
+
+        val aluno = Aluno()
+        aluno.esquadrao = xlWs.getRow(linha).getCell(0).toString()
+        aluno.nome_guerra = xlWs.getRow(linha).getCell(1).toString()
+        aluno.milhao = xlWs.getRow(linha).getCell(2).toString()
+        registroAluno(aluno)
+        //Log.d("Aluno", "Nome:"+aluno.nome_guerra + "Milhão:"+aluno.milhao + "Esquadrão:"+aluno.esquadrao)
+    }
+
+    fun lerExcelParaAddConvidado(filepath: File, linha: Int) {
+
+        val inputStream = FileInputStream(filepath)
+        var xlWb = WorkbookFactory.create(inputStream)
+
+        val xlWs = xlWb.getSheetAt(0)
+        var cpf = xlWs.getRow(linha).getCell(15).toString()
+            .replace(".","")
+            .replace("E9","")
+            .replace("E10","")
+        if(cpf.length == 10){
+            cpf = "0$cpf"
+        }
+        if(xlWs.getRow(linha).getCell(15).toString() != ""){
+            db.collection("alunos")
+                .whereEqualTo("milhao",xlWs.getRow(linha).getCell(2).toString())
+                .get()
+                .addOnSuccessListener { result ->
+                    if (result.size() > 0) {
+                        for (document in result) {
+
+                            val convidado = hashMapOf(
+                                "cpf" to cpf,
+                                "nome_completo" to xlWs.getRow(linha).getCell(14).toString(),
+                                "aluno" to db.collection("alunos")
+                                    .document(document.id),
+                                "padrinho" to true
+                            )
+                            //Log.d("Convidado", convidado.toString())
+
+                            db.collection("convidados")
+                                .add(convidado)
+                                .addOnSuccessListener { exibeToast("registro_efetuado") }
+                                .addOnFailureListener { exibeToast("registro_nao_efetuado") }
+
+                        }
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    Log.w(TAG, "Error getting documents.", exception)
+                }
+        }
+
+
+    }
+
+    private fun criaConvidadoFake(contagem: String){
+        val allowedChars = ('A'..'Z') + ('a'..'z')
+
+        val convidado = Convidado()
+        convidado.cpf = contagem
+        convidado.nome_completo = (1..10).map { allowedChars.random() }.joinToString("")
+        convidado.padrinho = Random.nextBoolean()
+
+        registroConvidadoFake(convidado)
+
+    }
+
+    private fun registroConvidadoFake(convidado: Convidado){
+
+        val convidado = hashMapOf(
+            "cpf" to convidado.cpf,
+            "nome_completo" to convidado.nome_completo,
+            "aluno" to db.collection("alunos.fake")
+                .document(
+                        "lgH9CnLk0xeYff0Fv9Z2"),
+            "padrinho" to convidado.padrinho
+        )
+
+        db.collection("convidados.fake")
+            .add(convidado)
+            .addOnSuccessListener { exibeToast("registro_efetuado") }
+            .addOnFailureListener { exibeToast("registro_nao_efetuado") }
+
+    }
+
+    private fun registroAluno(aluno: Aluno){
+
+        val convidado = hashMapOf(
+            "milhao" to aluno.milhao,
+            "nome_guerra" to aluno.nome_guerra,
+            "esquadrao" to aluno.esquadrao
+        )
+
+        db.collection("alunos")
+            .add(convidado)
+            .addOnSuccessListener { exibeToast("registro_efetuado") }
+            .addOnFailureListener { exibeToast("registro_nao_efetuado") }
+
+    }
+
+
+
 
 }
