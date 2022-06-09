@@ -7,7 +7,9 @@ import android.content.Intent
 import android.graphics.Color
 import android.media.AudioManager
 import android.media.ToneGenerator
+import android.opengl.Visibility
 import android.os.Bundle
+import android.provider.CalendarContract
 import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
@@ -15,12 +17,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
+import android.widget.ProgressBar
 import android.widget.Spinner
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.Source
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.zxing.integration.android.IntentIntegrator
@@ -39,6 +44,8 @@ class FirstFragment : Fragment() {
     private lateinit var qrScanIntegrator: IntentIntegrator
     val db = Firebase.firestore
 
+    lateinit var progressBar : ProgressBar
+
     private val binding get() = _binding!!
 
     override fun onCreateView(
@@ -55,7 +62,7 @@ class FirstFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupScanner()
         setOnClickListener()
-
+        progressBar = binding.progressBar2
         val spinner: Spinner = binding.spinner
 
         val cacheFile = File(requireContext().dataDir, "lista15.xls")
@@ -123,6 +130,12 @@ class FirstFragment : Fragment() {
     }
 
     private fun verificaConvidado(qrcode: String) {
+        progressBar.visibility = View.VISIBLE
+        habilitaBotoes(false)
+        binding.constraint.setBackgroundColor(resources.getColor(R.color.grey))
+
+
+
         db.collection("convidados.fake")
             .whereEqualTo("cpf", qrcode)
             .get()
@@ -291,6 +304,8 @@ class FirstFragment : Fragment() {
     }
 
     private fun exibeToast(respostaServidor:String){
+
+
         if(respostaServidor.equals("relacionado")){
             view?.let {
                 Snackbar.make(it, "Convidado relacionado. \n Verifique o documento de identificação", Snackbar.LENGTH_LONG)
@@ -357,6 +372,9 @@ class FirstFragment : Fragment() {
             toneGen1.startTone(ToneGenerator.TONE_CDMA_EMERGENCY_RINGBACK, 100)
             toneGen1.startTone(ToneGenerator.TONE_CDMA_EMERGENCY_RINGBACK, 100)
         }
+
+        progressBar.visibility = View.INVISIBLE
+        binding.constraint.setBackgroundColor(resources.getColor(R.color.white))
     }
 
     private fun habilitaBotoes(habilita: Boolean){

@@ -102,13 +102,11 @@ class MainActivity : AppCompatActivity() {
                         Toast.makeText(this, "Senha incorreta.", Toast.LENGTH_LONG).show()
 
                     }
-
                 }
                 return true
             }
                 else -> super.onOptionsItemSelected(item)
         }
-
     }
 
 
