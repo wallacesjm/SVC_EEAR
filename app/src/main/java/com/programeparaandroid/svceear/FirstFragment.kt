@@ -24,6 +24,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.Timestamp
+import com.google.firebase.database.ktx.database
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.Source
 import com.google.firebase.firestore.ktx.firestore
@@ -52,7 +53,11 @@ class FirstFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
         setHasOptionsMenu(true)
+        Firebase.database.setPersistenceEnabled(true)
+
+
         _binding = FragmentFirstBinding.inflate(inflater, container, false)
         return binding.root
 

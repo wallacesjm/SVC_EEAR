@@ -1,32 +1,30 @@
 package com.programeparaandroid.svceear
 
 import android.app.AlertDialog
-import android.app.Dialog
-import android.content.DialogInterface
-import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
-import android.util.Log
 import android.view.Menu
-import android.view.MenuInflater
 import android.view.MenuItem
-import android.view.View
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.commit
-import androidx.navigation.NavHostController
-import androidx.navigation.Navigation.findNavController
 import androidx.navigation.findNavController
-import androidx.navigation.fragment.NavHostFragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 import com.programeparaandroid.svceear.databinding.ActivityMainBinding
 import kotlin.system.exitProcess
 
 class MainActivity : AppCompatActivity() {
+
+
+    private fun enablePersistence() {
+        // [START rtdb_enable_persistence]
+        Firebase.database.setPersistenceEnabled(true)
+        // [END rtdb_enable_persistence]
+    }
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
@@ -47,7 +45,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.menu_main, menu)
         return true
     }
@@ -73,7 +70,6 @@ class MainActivity : AppCompatActivity() {
                     mPositiveButton.setOnClickListener {
                         exitProcess(0)
                     }
-
                 return true
             }
             R.id.relatorio ->{
@@ -108,7 +104,6 @@ class MainActivity : AppCompatActivity() {
                 else -> super.onOptionsItemSelected(item)
         }
     }
-
 
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_content_main)

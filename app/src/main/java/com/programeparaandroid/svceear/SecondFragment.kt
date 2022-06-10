@@ -35,6 +35,8 @@ class SecondFragment : Fragment() {
     ): View? {
         (activity as AppCompatActivity).supportActionBar?.title = "Acessos"
         _binding = FragmentSecondBinding.inflate(inflater, container, false)
+
+
         return binding.root
 
     }
