@@ -6,34 +6,37 @@ import android.graphics.Color
 import android.opengl.Visibility
 import android.os.Bundle
 import android.text.InputType
+import android.text.format.Time
 import android.util.Log
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.Timestamp
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.type.Date
+import com.google.type.DateTime
 import com.programeparaandroid.svceear.databinding.FragmentSecondBinding
+import kotlin.time.Duration.Companion.seconds
 
 class SecondFragment : Fragment() {
 
     private var _binding: FragmentSecondBinding? = null
     val db = Firebase.firestore
-    var portao = 0
-    var cte = 0
-    var total = 0
-    var indevido = 0
-    lateinit var progressBar : ProgressBar
+    var portao : Long = 0
+    var cte : Long = 0
+    var total : Long = 0
+    var indevido : Long= 0
     private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        (activity as AppCompatActivity).supportActionBar?.title = "Acessos"
+        (activity as AppCompatActivity).supportActionBar?.title = "Administração"
         _binding = FragmentSecondBinding.inflate(inflater, container, false)
 
 
@@ -41,20 +44,37 @@ class SecondFragment : Fragment() {
 
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        setHasOptionsMenu(true)
+        super.onCreate(savedInstanceState)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater!!.inflate(R.menu.menu_main, menu)
+        menu.findItem(R.id.relatorio).isVisible = false
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         contaRegistros()
 
-        progressBar = binding.progressBar
-        binding.constraint.setBackgroundColor(resources.getColor(R.color.grey))
+        binding.infoDispositivos.setOnClickListener {
+            val inflater = this.layoutInflater
+            val view = inflater.inflate(R.layout.dialog_info_dispositivos, null)
+
+            AlertDialog.Builder(context)
+                .setView(view)
+                .setTitle("Legenda")
+                .setMessage("Tempo desde a última conexão:")
+                .show()
+        }
 
         binding.atualiza.setOnClickListener {
-            //findNavController().navigate(R.id.action_SecondFragment_to_FirstFragment)
             zeraContadores()
             contaRegistros()
-            binding.constraint.setBackgroundColor(resources.getColor(R.color.grey))
-            progressBar.visibility = View.VISIBLE
+
             habilitaBotoes(false)
         }
 
@@ -82,75 +102,190 @@ class SecondFragment : Fragment() {
 
     private fun limpaAcessos(mBuilder: AlertDialog) {
         zeraContadores()
-        progressBar.visibility = View.VISIBLE
+
+        val contagem = hashMapOf(
+            "numero" to 0)
+
+        val inflater = this.layoutInflater
+        val view = inflater.inflate(R.layout.dialog_carregando, null)
+
+        val atualiza = AlertDialog.Builder(context)
+            .setView(view)
+            .setCancelable(false)
+            //.setTitle("")
+            .setMessage("Apagando registros de acesso")
+            .show()
+
         habilitaBotoes(false)
         mBuilder.dismiss()
-        db.collection("registros_acesso").get().addOnSuccessListener { result ->
-            for (document in result) {
-                db.collection("registros_acesso").document(document.id).delete()
-                    .addOnSuccessListener {
-                        db.collection("tentativas_acesso").get().addOnSuccessListener { result ->
-                            for (document in result) {
-                                db.collection("tentativas_acesso").document(document.id).delete()
-                                    .addOnSuccessListener {
-                                        contaRegistros()
-                                    }
-                            }
-                        }
-                    }
-            }
-        }
-    }
-
-    private fun contaRegistros() {
-
         db.collection("registros_acesso")
             .get()
             .addOnSuccessListener { result ->
-                for (consulta in result){
-                    if(consulta["posto"].toString().equals("Portão Principal")){
-                        portao++
+            for (document in result) {
+                db.collection("registros_acesso")
+                    .document(document.id)
+                    .delete()
+                    .addOnSuccessListener {
+
+
                     }
 
-                    if(consulta["posto"].toString().equals("CTE")){
-                        cte++
-                    }
-
-                }
-                contaConvidado()
             }
-            .addOnFailureListener { exception ->
-                Log.w(ContentValues.TAG, "Error getting documents.", exception)
-            }
-    }
+                db.collection("registros_acesso").document("contagem_cte").set(contagem)
+                    .addOnSuccessListener { }
+                    .addOnFailureListener { }
 
-    private fun contaConvidado() {
+                db.collection("registros_acesso").document("contagem_principal").set(contagem)
+                    .addOnSuccessListener { }
+                    .addOnFailureListener { }
 
-        db.collection("convidados.fake")
-            .get()
-            .addOnSuccessListener { result ->
-                total = result.size()
-                contaAcessoIndevido()
-            }
-            .addOnFailureListener { exception ->
-                Log.w(ContentValues.TAG, "Error getting documents.", exception)
-            }
-    }
+        }
 
-    private fun contaAcessoIndevido() {
 
         db.collection("tentativas_acesso")
             .get()
             .addOnSuccessListener { result ->
-                indevido = result.size()
+                for (document in result) {
+                    db.collection("tentativas_acesso")
+                        .document(document.id)
+                        .delete()
+                        .addOnSuccessListener {
 
-                preencheContadores()
+                        }
+                }
+
+                db.collection("tentativas_acesso").document("contagem_cte").set(contagem)
+                    .addOnSuccessListener {
+                        db.collection("tentativas_acesso").document("contagem_principal").set(contagem)
+                            .addOnSuccessListener {
+                                contaRegistros()
+                                atualiza.dismiss()
+                            }
+                            .addOnFailureListener { }
+                    }
+                    .addOnFailureListener { }
+
+
+            }
+
+
+    }
+
+    private fun contaRegistros() {
+        val inflater = this.layoutInflater
+        val view = inflater.inflate(R.layout.dialog_carregando, null)
+
+        val atualiza = AlertDialog.Builder(context)
+            .setView(view)
+            .setCancelable(false)
+            //.setTitle("")
+            .setMessage("Verificando registros")
+            .show()
+
+        db.collection("registros_acesso")
+            .document("contagem_principal")
+            .get()
+            .addOnSuccessListener { result ->
+                portao = result.data?.get("numero") as Long
+
+                db.collection("registros_acesso")
+                    .document("contagem_cte")
+                    .get()
+                    .addOnSuccessListener { result ->
+                        cte = result.data?.get("numero") as Long
+
+                        contaConvidado(atualiza)
+
+                    }
+                    .addOnFailureListener { exception ->
+                        Log.w(ContentValues.TAG, "Error getting documents.", exception)
+                    }
+
             }
             .addOnFailureListener { exception ->
                 Log.w(ContentValues.TAG, "Error getting documents.", exception)
             }
+
+
     }
 
+    private fun contaConvidado(atualiza:AlertDialog) {
+        db.collection("convidados")
+            .get()
+            .addOnSuccessListener { result ->
+                Log.d("Convidados", result.size().toString())
+            }
+            .addOnFailureListener { exception ->
+                Log.w(ContentValues.TAG, "Error getting documents.", exception)
+            }
+
+        db.collection("convidados")
+            .document("contagem")
+            .get()
+            .addOnSuccessListener { result ->
+                total = result.data?.get("numero") as Long
+                contaAcessoIndevido(atualiza)
+            }
+            .addOnFailureListener { exception ->
+                Log.w(ContentValues.TAG, "Error getting documents.", exception)
+            }
+
+
+    }
+
+    private fun contaAcessoIndevido(atualiza: AlertDialog) {
+
+        db.collection("tentativas_acesso")
+            .document("contagem_principal")
+            .get()
+            .addOnSuccessListener { result ->
+                indevido = result.data?.get("numero") as Long
+                db.collection("tentativas_acesso")
+                    .document("contagem_cte")
+                    .get()
+                    .addOnSuccessListener { result2 ->
+                        indevido += result2.data?.get("numero") as Long
+                        preencheContadores(atualiza)
+                        dispositivosRegistrados()
+                    }
+                    .addOnFailureListener { exception ->
+                        Log.w(ContentValues.TAG, "Error getting documents.", exception)
+                    }
+            }
+            .addOnFailureListener { exception ->
+                Log.w(ContentValues.TAG, "Error getting documents.", exception)
+            }
+
+
+    }
+
+    private fun dispositivosRegistrados(){
+        var online = 0
+        var ausente = 0
+        var offline = 0
+        db.collection("dispositivos_registrados")
+            .get()
+            .addOnSuccessListener { result ->
+                for (document in result) {
+
+                    binding.dispositivosTotal.text = result.size().toString()
+
+                    var hora = document.data["data_hora"] as Timestamp
+
+                    if((Timestamp.now().seconds -  hora.seconds) > 1800){
+                        offline++
+                    } else if((Timestamp.now().seconds -  hora.seconds) > 60) {
+                        ausente++
+                    } else if ((Timestamp.now().seconds -  hora.seconds) < 60){
+                        online++
+                    }
+
+                }
+                binding.dispositivosOnLine.text = online.toString()
+                binding.dispositivosAusente.text = ausente.toString()
+                binding.dispositivosOffLine.text = offline.toString()
+            }
+    }
     fun zeraContadores(){
         portao = 0
         cte = 0
@@ -158,16 +293,14 @@ class SecondFragment : Fragment() {
         indevido = 0
     }
 
-    fun preencheContadores(){
+    fun preencheContadores(atualiza: AlertDialog){
         binding.convidadosPortaoPrincipal.text = portao.toString()
         binding.convidadosCte.text = cte.toString()
         binding.convidadosFaltam.text = (total - portao - cte).toString()
         binding.convidadosTotal.text = total.toString()
         binding.tentativasRegistro.text = indevido.toString()
         binding.tentativasRegistro.text = indevido.toString()
-        binding.constraint.setBackgroundColor(resources.getColor(R.color.white))
-
-        progressBar.visibility = View.INVISIBLE
+        atualiza.dismiss()
         habilitaBotoes(true)
     }
 

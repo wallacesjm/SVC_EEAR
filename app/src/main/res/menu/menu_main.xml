@@ -3,12 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.programeparaandroid.svceear.MainActivity">
     <item
-        android:id="@+id/action_favorite"
+        android:id="@+id/eear"
         android:icon="@mipmap/eear"
         android:title="@string/action_settings"
         app:showAsAction="ifRoom"/>
     <item
-        android:id="@+id/action_favorite2"
+        android:id="@+id/ca"
         android:icon="@mipmap/ca"
         android:title="@string/action_settings"
         app:showAsAction="ifRoom"/>
@@ -16,6 +16,11 @@
         android:id="@+id/relatorio"
         android:orderInCategory="100"
         android:title="@string/action_share"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/alterar_senha"
+        android:orderInCategory="100"
+        android:title="@string/alterar_senha"
         app:showAsAction="never" />
     <item
         android:id="@+id/sair"

@@ -9,5 +9,4 @@ class Convidado {
     lateinit var milhao: String
     lateinit var esquadrao: String
     var padrinho by Delegates.notNull<Boolean>()
-
 }

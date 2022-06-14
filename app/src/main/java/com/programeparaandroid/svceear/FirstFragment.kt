@@ -1,50 +1,40 @@
 package com.programeparaandroid.svceear
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.media.AudioManager
 import android.media.ToneGenerator
-import android.opengl.Visibility
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Bundle
-import android.provider.CalendarContract
 import android.util.Log
-import android.view.KeyEvent
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.view.inputmethod.InputMethodManager
-import android.widget.ArrayAdapter
-import android.widget.ProgressBar
-import android.widget.Spinner
-import android.widget.Toast
-import androidx.core.content.ContextCompat
+import android.widget.*
 import androidx.fragment.app.Fragment
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.Timestamp
-import com.google.firebase.database.ktx.database
-import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.Source
+import com.google.firebase.firestore.*
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.zxing.integration.android.IntentIntegrator
 import com.programeparaandroid.svceear.databinding.FragmentFirstBinding
-import org.apache.poi.ss.usermodel.Cell
-import org.apache.poi.ss.usermodel.CellType
 import org.apache.poi.ss.usermodel.WorkbookFactory
-import org.apache.poi.ss.util.NumberToTextConverter
 import java.io.File
 import java.io.FileInputStream
 import kotlin.random.Random
+
 
 class FirstFragment : Fragment() {
 
     private var _binding: FragmentFirstBinding? = null
     private lateinit var qrScanIntegrator: IntentIntegrator
     val db = Firebase.firestore
-
+    var acessoDuplicado : Boolean = false
     lateinit var progressBar : ProgressBar
 
     private val binding get() = _binding!!
@@ -55,12 +45,23 @@ class FirstFragment : Fragment() {
     ): View? {
 
         setHasOptionsMenu(true)
-        Firebase.database.setPersistenceEnabled(true)
-
 
         _binding = FragmentFirstBinding.inflate(inflater, container, false)
         return binding.root
 
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        setHasOptionsMenu(true)
+        super.onCreate(savedInstanceState)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater!!.inflate(R.menu.menu_main, menu)
+        menu.findItem(R.id.sair).isVisible = false
+        menu.findItem(R.id.alterar_senha).isVisible = false
+
+        super.onCreateOptionsMenu(menu, inflater)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -70,20 +71,32 @@ class FirstFragment : Fragment() {
         progressBar = binding.progressBar2
         val spinner: Spinner = binding.spinner
 
-        val cacheFile = File(requireContext().dataDir, "lista15.xls")
+        val cacheFile = File(requireContext().dataDir, "lista20.xls")
 
         // - Add alunos
-        /*
-        for (i in 1..389){
+
+        for (i in 1..200){
             lerExcelParaAddAluno(cacheFile, i)
-        }*/
+        }
+
+
 
 
         // - Add convidados
         /*
-        for (i in 1..389){
+        for (i in 1..1){
             lerExcelParaAddConvidado(cacheFile, i)
-        }*/
+        }
+
+         */
+
+
+
+
+
+
+
+
 
         // - Add convidados fake
         /*
@@ -105,16 +118,13 @@ class FirstFragment : Fragment() {
 
 
 
-        binding.btnCancel.setOnClickListener {
-            limpaCampos()
-        }
-
         binding.cpfVisitante.setOnKeyListener { v, keyCode, event ->
 
             when {
 
                 ((keyCode == KeyEvent.KEYCODE_ENTER) && (event.action == KeyEvent.ACTION_DOWN)) -> {
 
+                    (activity as MainActivity?)?.registraDispositivo()
                     verificaConvidado(binding.cpfVisitante.text.toString())
 
 
@@ -130,18 +140,29 @@ class FirstFragment : Fragment() {
         }
 
         binding.btnSave.setOnClickListener{
-            registraAcesso()
+            registraAcesso(acessoDuplicado)
         }
     }
 
     private fun verificaConvidado(qrcode: String) {
-        progressBar.visibility = View.VISIBLE
+
+        val inflater = this.layoutInflater
+        val view = inflater.inflate(R.layout.dialog_carregando, null)
+
+
+
+        val atualiza = AlertDialog.Builder(context)
+            .setView(view)
+            .setCancelable(false)
+            //.setTitle("")
+            .setMessage("Verificando convidado")
+            .show()
+
         habilitaBotoes(false)
-        binding.constraint.setBackgroundColor(resources.getColor(R.color.grey))
 
 
 
-        db.collection("convidados.fake")
+        db.collection("convidados")
             .whereEqualTo("cpf", qrcode)
             .get()
             .addOnSuccessListener { result ->
@@ -152,12 +173,11 @@ class FirstFragment : Fragment() {
                         convidado.nome_completo = document.data["nome_completo"].toString()
                         convidado.cpf = document.data["cpf"].toString()
                         convidado.padrinho = document.data["padrinho"] as Boolean
-                        convidado.esquadrao = "Aguardando atualização..."
 
                         val docRef1: DocumentReference = document.data["aluno"] as DocumentReference
                         convidado.nome_guerra = docRef1.id
 
-                        db.collection("alunos.fake").document(docRef1.id)
+                        db.collection("alunos").document(docRef1.id)
                             .get()
                             .addOnSuccessListener { result2 ->
                                 convidado.nome_guerra = result2.data?.get("nome_guerra").toString()
@@ -170,6 +190,7 @@ class FirstFragment : Fragment() {
                     exibeToast("nao_relacionado")
                     registraTentativaAcesso()
                 }
+                atualiza.dismiss()
             }
             .addOnFailureListener { exception ->
                 Log.w(TAG, "Error getting documents.", exception)
@@ -229,17 +250,40 @@ class FirstFragment : Fragment() {
         habilitaBotoes(true)
     }
 
-    private fun registraAcesso(){
+    private fun registraAcesso(acessoDuplicado : Boolean){
+
         val acesso = hashMapOf(
             "convidado_cpf" to binding.cpfVisitante.text.toString(),
             "posto" to binding.spinner.selectedItem.toString(),
             "data_hora" to Timestamp.now()
         )
 
+        var posto_selecionado = ""
+        if(binding.spinner.selectedItem.toString() == "Portão Principal"){
+            posto_selecionado = "contagem_principal"
+        } else {
+            posto_selecionado = "contagem_cte"
+        }
+
         db.collection("registros_acesso")
             .add(acesso)
-            .addOnSuccessListener { exibeToast("registro_efetuado") }
+            .addOnSuccessListener {
+                exibeToast("registro_efetuado")
+                if(!acessoDuplicado){
+                    db.collection("registros_acesso")
+                        .document(posto_selecionado)
+                        .update("numero", FieldValue.increment(1))
+                }
+            }
             .addOnFailureListener { exibeToast("registro_nao_efetuado") }
+
+        if(!isOnline()){
+            exibeToast("registro_efetuado_offline")
+
+
+        }
+
+
 
     }
 
@@ -250,8 +294,20 @@ class FirstFragment : Fragment() {
             "data_hora" to Timestamp.now()
         )
 
+        var posto_selecionado = ""
+        if(binding.spinner.selectedItem.toString() == "Portão Principal"){
+            posto_selecionado = "contagem_principal"
+        } else {
+            posto_selecionado = "contagem_cte"
+        }
+
         db.collection("tentativas_acesso")
             .add(acesso)
+            .addOnSuccessListener {
+                db.collection("tentativas_acesso")
+                    .document(posto_selecionado)
+                    .update("numero", FieldValue.increment(1))
+            }
 
     }
 
@@ -312,6 +368,7 @@ class FirstFragment : Fragment() {
 
 
         if(respostaServidor.equals("relacionado")){
+            acessoDuplicado = false
             view?.let {
                 Snackbar.make(it, "Convidado relacionado. \n Verifique o documento de identificação", Snackbar.LENGTH_LONG)
                     .setAction("Action", null)
@@ -325,7 +382,7 @@ class FirstFragment : Fragment() {
             toneGen1.startTone(ToneGenerator.TONE_CDMA_PIP, 150)
 
         } else if(respostaServidor.equals("nao_relacionado")){
-
+            acessoDuplicado = false
             view?.let {
                 Snackbar.make(it, "Convidado não relacionado", Snackbar.LENGTH_LONG)
                     .setAction("Action", null)
@@ -340,19 +397,18 @@ class FirstFragment : Fragment() {
             toneGen1.startTone(ToneGenerator.TONE_CDMA_EMERGENCY_RINGBACK, 100)
 
         } else if(respostaServidor.equals("limpo")){
+            acessoDuplicado = false
             habilitaBotoes(false)
             exibeToast("limpo")
 
         }  else if(respostaServidor.equals("nao_autorizado")){
-
+            acessoDuplicado = false
             view?.let {
                 Snackbar.make(it, "Convidado não autorizado neste ponto", Snackbar.LENGTH_LONG)
                     .setAction("Action", null)
                     .setBackgroundTint(Color.BLUE)
                     .show()
             }
-
-
             habilitaBotoes(true)
             val toneGen1 = ToneGenerator(AudioManager.STREAM_MUSIC, 100)
             toneGen1.startTone(ToneGenerator.TONE_CDMA_EMERGENCY_RINGBACK, 100)
@@ -361,10 +417,17 @@ class FirstFragment : Fragment() {
             Toast.makeText(activity, "Registro efetuado com sucesso", Toast.LENGTH_LONG).show()
             limpaCampos()
             habilitaBotoes(false)
+
+        } else if(respostaServidor.equals("registro_efetuado_offline")) {
+            Toast.makeText(activity, "Registro efetuado com sucesso", Toast.LENGTH_LONG).show()
+            limpaCampos()
+            habilitaBotoes(false)
+
         } else if(respostaServidor.equals("registro_nao_efetuado")) {
+            acessoDuplicado = false
             Toast.makeText(activity, "Registro não efetuado. Tente novamente.", Toast.LENGTH_LONG).show()
         } else if(respostaServidor.equals("registro_anterior_existente")){
-
+            acessoDuplicado = true
             view?.let {
                 Snackbar.make(it, "QRCode já registrado nesse ponto.", Snackbar.LENGTH_LONG)
                     .setAction("Action", null)
@@ -378,8 +441,7 @@ class FirstFragment : Fragment() {
             toneGen1.startTone(ToneGenerator.TONE_CDMA_EMERGENCY_RINGBACK, 100)
         }
 
-        progressBar.visibility = View.INVISIBLE
-        binding.constraint.setBackgroundColor(resources.getColor(R.color.white))
+
     }
 
     private fun habilitaBotoes(habilita: Boolean){
@@ -422,7 +484,7 @@ class FirstFragment : Fragment() {
         aluno.nome_guerra = xlWs.getRow(linha).getCell(1).toString()
         aluno.milhao = xlWs.getRow(linha).getCell(2).toString()
         registroAluno(aluno)
-        //Log.d("Aluno", "Nome:"+aluno.nome_guerra + "Milhão:"+aluno.milhao + "Esquadrão:"+aluno.esquadrao)
+        Log.d("Aluno", "Nome:"+aluno.nome_guerra + " Milhão:"+aluno.milhao + " Esquadrão:"+aluno.esquadrao)
     }
 
     fun lerExcelParaAddConvidado(filepath: File, linha: Int) {
@@ -431,14 +493,11 @@ class FirstFragment : Fragment() {
         var xlWb = WorkbookFactory.create(inputStream)
 
         val xlWs = xlWb.getSheetAt(0)
-        var cpf = xlWs.getRow(linha).getCell(15).toString()
-            .replace(".","")
-            .replace("E9","")
-            .replace("E10","")
-        if(cpf.length == 10){
-            cpf = "0$cpf"
-        }
-        if(xlWs.getRow(linha).getCell(15).toString() != ""){
+        //Log.d("CPF", xlWs.getRow(linha).getCell(6).toString())
+
+
+
+        if(xlWs.getRow(linha).getCell(3).toString() != ""){
             db.collection("alunos")
                 .whereEqualTo("milhao",xlWs.getRow(linha).getCell(2).toString())
                 .get()
@@ -447,18 +506,30 @@ class FirstFragment : Fragment() {
                         for (document in result) {
 
                             val convidado = hashMapOf(
-                                "cpf" to cpf,
-                                "nome_completo" to xlWs.getRow(linha).getCell(14).toString(),
+                                "cpf" to xlWs.getRow(linha).getCell(3).toString(),
+                                "nome_completo" to xlWs.getRow(linha).getCell(2).toString(),
                                 "aluno" to db.collection("alunos")
                                     .document(document.id),
                                 "padrinho" to true
                             )
+                            //Log.d("Convidado ->",convidado.toString())
                             //Log.d("Convidado", convidado.toString())
 
                             db.collection("convidados")
                                 .add(convidado)
                                 .addOnSuccessListener { exibeToast("registro_efetuado") }
                                 .addOnFailureListener { exibeToast("registro_nao_efetuado") }
+                            /*
+                            db.collection("convidados")
+                                .document("contagem")
+                                .update("numero", FieldValue.increment(1))
+
+                             */
+
+
+
+
+
 
                         }
                     }
@@ -511,12 +582,36 @@ class FirstFragment : Fragment() {
 
         db.collection("alunos")
             .add(convidado)
-            .addOnSuccessListener { exibeToast("registro_efetuado") }
-            .addOnFailureListener { exibeToast("registro_nao_efetuado") }
+            .addOnSuccessListener {
+                Log.d("Cadastrado", "OK")
+                //exibeToast("registro_efetuado")
+            }.addOnFailureListener {
+                Log.d("Cadastrado", "Não")
+            }
 
     }
 
-
+    fun isOnline(): Boolean {
+        val connectivityManager =
+            context?.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        if (connectivityManager != null) {
+            val capabilities =
+                connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+            if (capabilities != null) {
+                if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                    Log.i("Internet", "NetworkCapabilities.TRANSPORT_CELLULAR")
+                    return true
+                } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                    Log.i("Internet", "NetworkCapabilities.TRANSPORT_WIFI")
+                    return true
+                } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
+                    Log.i("Internet", "NetworkCapabilities.TRANSPORT_ETHERNET")
+                    return true
+                }
+            }
+        }
+        return false
+    }
 
 
 }

@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Formatura EEAR</string>
-    <string name="action_settings">Sair</string>
+    <string name="alterar_senha">Alterar senha</string>
+    <string name="action_settings">Logoff</string>
     <string name="action_share">Ver relatório</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">Formatura EEAR</string>

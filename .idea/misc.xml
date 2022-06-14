@@ -3,12 +3,19 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.1" />
+        <entry key="app/src/main/res/drawable/alerta.xml" value="0.1065" />
+        <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_relatorio.xml" value="0.19429347826086957" />
         <entry key="app/src/main/res/layout/content_main.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/dialog_baixar_tudo.xml" value="0.20199275362318841" />
+        <entry key="app/src/main/res/layout/dialog_carregando.xml" value="0.3703125" />
+        <entry key="app/src/main/res/layout/dialog_info_dispositivos.xml" value="0.20199275362318841" />
         <entry key="app/src/main/res/layout/dialog_signin.xml" value="0.19429347826086957" />
         <entry key="app/src/main/res/layout/fragment_first.xml" value="0.25" />
         <entry key="app/src/main/res/layout/fragment_second.xml" value="0.1751412429378531" />
+        <entry key="app/src/main/res/layout/update_password.xml" value="0.20199275362318841" />
         <entry key="app/src/main/res/menu/menu_main.xml" value="0.19791666666666666" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.1" />
       </map>
