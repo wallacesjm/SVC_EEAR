@@ -1,33 +1,34 @@
 {
   "project_info": {
-    "project_number": "790770636495",
-    "project_id": "convidadoseear",
-    "storage_bucket": "convidadoseear.appspot.com"
+    "project_number": "391348820778",
+    "firebase_url": "https://eear-edd29-default-rtdb.firebaseio.com",
+    "project_id": "eear-edd29",
+    "storage_bucket": "eear-edd29.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:790770636495:android:aa7877d893ef5f326f89ba",
+        "mobilesdk_app_id": "1:391348820778:android:5aa35d7db920bd430d9c53",
         "android_client_info": {
           "package_name": "com.programeparaandroid.svceear"
         }
       },
       "oauth_client": [
         {
-          "client_id": "790770636495-ove8d87nknsi1ou5ckpjblqdrnfjffhl.apps.googleusercontent.com",
+          "client_id": "391348820778-fcrcf9v6br1td7pe4d70ekn74860c6ot.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBtOvIQ4IPFd0eyeqW4XzxriuPzBXFw0dc"
+          "current_key": "AIzaSyC3U6runRm4-CLK8K42Xea-uKiA-1okops"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "790770636495-ove8d87nknsi1ou5ckpjblqdrnfjffhl.apps.googleusercontent.com",
+              "client_id": "391348820778-fcrcf9v6br1td7pe4d70ekn74860c6ot.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

@@ -236,12 +236,9 @@ class MainActivity : AppCompatActivity() {
                         } else {
                             loginUsuarioESenha(email, senha, mBuilder)
                         }
-
                     }
-
                 } else {
                     abreRelatorio(navController)
-
                 }
 
                 return true
@@ -285,7 +282,6 @@ class MainActivity : AppCompatActivity() {
 
                             }
                     }
-
                 }
                 return true
             }
@@ -339,20 +335,13 @@ class MainActivity : AppCompatActivity() {
 
      */
 
-
-
-
     override fun onBackPressed() {
         if(backPressedTime + 3000 > System.currentTimeMillis()){
             finish()
             super.onBackPressed()
         } else {
             Toast.makeText(this, "Pressione voltar novamente para fechar o aplicativo.", Toast.LENGTH_LONG).show()
-
         }
         backPressedTime = System.currentTimeMillis()
     }
-
-
-
 }

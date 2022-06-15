@@ -28,7 +28,6 @@ import java.io.File
 import java.io.FileInputStream
 import kotlin.random.Random
 
-
 class FirstFragment : Fragment() {
 
     private var _binding: FragmentFirstBinding? = null
@@ -74,13 +73,12 @@ class FirstFragment : Fragment() {
         val cacheFile = File(requireContext().dataDir, "lista20.xls")
 
         // - Add alunos
-
+        /*
         for (i in 1..200){
             lerExcelParaAddAluno(cacheFile, i)
         }
 
-
-
+         */
 
         // - Add convidados
         /*
@@ -90,20 +88,11 @@ class FirstFragment : Fragment() {
 
          */
 
-
-
-
-
-
-
-
-
         // - Add convidados fake
         /*
         for (i in 51..99){
             criaConvidadoFake("000000000$i")
         }*/
-
 
         context?.let {
             ArrayAdapter.createFromResource(
@@ -116,18 +105,12 @@ class FirstFragment : Fragment() {
             }
         }
 
-
-
         binding.cpfVisitante.setOnKeyListener { v, keyCode, event ->
-
             when {
-
                 ((keyCode == KeyEvent.KEYCODE_ENTER) && (event.action == KeyEvent.ACTION_DOWN)) -> {
 
                     (activity as MainActivity?)?.registraDispositivo()
                     verificaConvidado(binding.cpfVisitante.text.toString())
-
-
 
                     hideKeyboard()
 
@@ -136,20 +119,22 @@ class FirstFragment : Fragment() {
 
                 else -> false
             }
-
         }
 
         binding.btnSave.setOnClickListener{
             registraAcesso(acessoDuplicado)
         }
+
+        binding.btnCancel.setOnClickListener {
+            limpaCampos()
+        }
+
     }
 
     private fun verificaConvidado(qrcode: String) {
 
         val inflater = this.layoutInflater
         val view = inflater.inflate(R.layout.dialog_carregando, null)
-
-
 
         val atualiza = AlertDialog.Builder(context)
             .setView(view)
@@ -158,11 +143,9 @@ class FirstFragment : Fragment() {
             .setMessage("Verificando convidado")
             .show()
 
-        habilitaBotoes(false)
+        //habilitaBotoes(false)
 
-
-
-        db.collection("convidados")
+        db.collection("convidados.20")
             .whereEqualTo("cpf", qrcode)
             .get()
             .addOnSuccessListener { result ->
@@ -173,6 +156,12 @@ class FirstFragment : Fragment() {
                         convidado.nome_completo = document.data["nome_completo"].toString()
                         convidado.cpf = document.data["cpf"].toString()
                         convidado.padrinho = document.data["padrinho"] as Boolean
+
+                        if(convidado.padrinho && binding.spinner.selectedItem.toString() == "Portão Principal"){
+                            binding.padrinhoInputLayout.visibility = View.VISIBLE
+                        } else {
+                            binding.padrinhoInputLayout.visibility = View.GONE
+                        }
 
                         val docRef1: DocumentReference = document.data["aluno"] as DocumentReference
                         convidado.nome_guerra = docRef1.id
@@ -188,6 +177,7 @@ class FirstFragment : Fragment() {
                 } else {
                     habilitaBotoes(false)
                     exibeToast("nao_relacionado")
+                    binding.padrinhoInputLayout.visibility = View.GONE
                     registraTentativaAcesso()
                 }
                 atualiza.dismiss()
@@ -204,10 +194,8 @@ class FirstFragment : Fragment() {
                 for(document in result){
                     if(document["cpf"].toString().length < 11){
                         Log.d("CPF",document["cpf"].toString())
-
                     }
                 }
-
             }
             .addOnFailureListener { exception ->
                 Log.w(TAG, "Error getting documents.", exception)
@@ -217,7 +205,7 @@ class FirstFragment : Fragment() {
     private fun verificaRegistro(convidado: Convidado){
 
         var contagem = 0
-        db.collection("registros_acesso")
+        db.collection("registros_acesso.20")
             .whereEqualTo("convidado_cpf", convidado.cpf)
             .whereEqualTo("posto",binding.spinner.selectedItem.toString())
             .get()
@@ -247,7 +235,7 @@ class FirstFragment : Fragment() {
             }
 
         preencheCampos(convidado)
-        habilitaBotoes(true)
+        //habilitaBotoes(true)
     }
 
     private fun registraAcesso(acessoDuplicado : Boolean){
@@ -265,12 +253,12 @@ class FirstFragment : Fragment() {
             posto_selecionado = "contagem_cte"
         }
 
-        db.collection("registros_acesso")
+        db.collection("registros_acesso.20")
             .add(acesso)
             .addOnSuccessListener {
                 exibeToast("registro_efetuado")
                 if(!acessoDuplicado){
-                    db.collection("registros_acesso")
+                    db.collection("registros_acesso.20")
                         .document(posto_selecionado)
                         .update("numero", FieldValue.increment(1))
                 }
@@ -280,11 +268,7 @@ class FirstFragment : Fragment() {
         if(!isOnline()){
             exibeToast("registro_efetuado_offline")
 
-
         }
-
-
-
     }
 
     private fun registraTentativaAcesso(){
@@ -301,14 +285,13 @@ class FirstFragment : Fragment() {
             posto_selecionado = "contagem_cte"
         }
 
-        db.collection("tentativas_acesso")
+        db.collection("tentativas_acesso.20")
             .add(acesso)
             .addOnSuccessListener {
-                db.collection("tentativas_acesso")
+                db.collection("tentativas_acesso.20")
                     .document(posto_selecionado)
                     .update("numero", FieldValue.increment(1))
             }
-
     }
 
     private fun limpaCampos() {
@@ -316,6 +299,7 @@ class FirstFragment : Fragment() {
         binding.cpfVisitante.text.clear()
         binding.nomeAluno.text.clear()
         binding.esquadraoAluno.text.clear()
+        binding.padrinhoInputLayout.visibility = View.GONE
         habilitaBotoes(false)
     }
 
@@ -345,7 +329,15 @@ class FirstFragment : Fragment() {
             if (result.contents == null) {
                 Toast.makeText(activity, R.string.result_not_found, Toast.LENGTH_LONG).show()
             } else {
-                verificaConvidado(result.contents)
+                if(result.contents.length == 12){
+                    Log.d("QRCode > 12 ",result.contents.subSequence(1,12).toString())
+                    verificaConvidado(result.contents.subSequence(1,12).toString())
+                } else {
+                    Log.d("QRCode = 11 ",result.contents)
+
+                    verificaConvidado(result.contents)
+                }
+
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data)
@@ -440,8 +432,6 @@ class FirstFragment : Fragment() {
             toneGen1.startTone(ToneGenerator.TONE_CDMA_EMERGENCY_RINGBACK, 100)
             toneGen1.startTone(ToneGenerator.TONE_CDMA_EMERGENCY_RINGBACK, 100)
         }
-
-
     }
 
     private fun habilitaBotoes(habilita: Boolean){
@@ -471,7 +461,6 @@ class FirstFragment : Fragment() {
         val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
         inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
     }
-
 
     fun lerExcelParaAddAluno(filepath: File, linha: Int) {
         val inputStream = FileInputStream(filepath)
@@ -525,11 +514,6 @@ class FirstFragment : Fragment() {
                                 .update("numero", FieldValue.increment(1))
 
                              */
-
-
-
-
-
 
                         }
                     }

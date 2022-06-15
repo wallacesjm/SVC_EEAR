@@ -80,13 +80,10 @@ class SecondFragment : Fragment() {
 
         binding.apaga.setOnClickListener{
 
-            var editText = EditText(context)
-            editText.inputType = InputType.TYPE_TEXT_VARIATION_PASSWORD
 
             val mBuilder = AlertDialog.Builder(context)
                 .setTitle("Atenção")
                 .setMessage("Tem certeza que deseja apagar todo o banco de dados?")
-                .setView(editText)
                 .setPositiveButton("Sim", null)
                 .setNegativeButton("Não", null)
                 .show()
@@ -94,7 +91,14 @@ class SecondFragment : Fragment() {
             val mPositiveButton = mBuilder.getButton(AlertDialog.BUTTON_POSITIVE)
 
             mPositiveButton.setOnClickListener {
-                limpaAcessos(mBuilder)
+
+                val mBuilder = AlertDialog.Builder(context)
+                    .setTitle("Desativado")
+                    .setMessage("Recurso desativado nessa versão do aplicativo")
+                    .setPositiveButton("OK", null)
+                    .show()
+
+                //limpaAcessos(mBuilder)
 
             }
         }
@@ -118,35 +122,38 @@ class SecondFragment : Fragment() {
 
         habilitaBotoes(false)
         mBuilder.dismiss()
-        db.collection("registros_acesso")
+        db.collection("registros_acesso.20")
             .get()
             .addOnSuccessListener { result ->
             for (document in result) {
-                db.collection("registros_acesso")
+                db.collection("registros_acesso.20")
                     .document(document.id)
                     .delete()
                     .addOnSuccessListener {
 
-
                     }
 
             }
-                db.collection("registros_acesso").document("contagem_cte").set(contagem)
+                db.collection("registros_acesso.20")
+                    .document("contagem_cte")
+                    .set(contagem)
                     .addOnSuccessListener { }
                     .addOnFailureListener { }
 
-                db.collection("registros_acesso").document("contagem_principal").set(contagem)
+                db.collection("registros_acesso.20")
+                    .document("contagem_principal")
+                    .set(contagem)
                     .addOnSuccessListener { }
                     .addOnFailureListener { }
 
         }
 
 
-        db.collection("tentativas_acesso")
+        db.collection("tentativas_acesso.20")
             .get()
             .addOnSuccessListener { result ->
                 for (document in result) {
-                    db.collection("tentativas_acesso")
+                    db.collection("tentativas_acesso.20")
                         .document(document.id)
                         .delete()
                         .addOnSuccessListener {
@@ -154,9 +161,13 @@ class SecondFragment : Fragment() {
                         }
                 }
 
-                db.collection("tentativas_acesso").document("contagem_cte").set(contagem)
+                db.collection("tentativas_acesso.20")
+                    .document("contagem_cte")
+                    .set(contagem)
                     .addOnSuccessListener {
-                        db.collection("tentativas_acesso").document("contagem_principal").set(contagem)
+                        db.collection("tentativas_acesso.20")
+                            .document("contagem_principal")
+                            .set(contagem)
                             .addOnSuccessListener {
                                 contaRegistros()
                                 atualiza.dismiss()
@@ -182,13 +193,13 @@ class SecondFragment : Fragment() {
             .setMessage("Verificando registros")
             .show()
 
-        db.collection("registros_acesso")
+        db.collection("registros_acesso.20")
             .document("contagem_principal")
             .get()
             .addOnSuccessListener { result ->
                 portao = result.data?.get("numero") as Long
 
-                db.collection("registros_acesso")
+                db.collection("registros_acesso.20")
                     .document("contagem_cte")
                     .get()
                     .addOnSuccessListener { result ->
@@ -210,16 +221,9 @@ class SecondFragment : Fragment() {
     }
 
     private fun contaConvidado(atualiza:AlertDialog) {
-        db.collection("convidados")
-            .get()
-            .addOnSuccessListener { result ->
-                Log.d("Convidados", result.size().toString())
-            }
-            .addOnFailureListener { exception ->
-                Log.w(ContentValues.TAG, "Error getting documents.", exception)
-            }
 
-        db.collection("convidados")
+
+        db.collection("convidados.20")
             .document("contagem")
             .get()
             .addOnSuccessListener { result ->
@@ -235,12 +239,12 @@ class SecondFragment : Fragment() {
 
     private fun contaAcessoIndevido(atualiza: AlertDialog) {
 
-        db.collection("tentativas_acesso")
+        db.collection("tentativas_acesso.20")
             .document("contagem_principal")
             .get()
             .addOnSuccessListener { result ->
                 indevido = result.data?.get("numero") as Long
-                db.collection("tentativas_acesso")
+                db.collection("tentativas_acesso.20")
                     .document("contagem_cte")
                     .get()
                     .addOnSuccessListener { result2 ->
