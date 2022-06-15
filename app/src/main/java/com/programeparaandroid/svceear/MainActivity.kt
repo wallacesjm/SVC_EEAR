@@ -318,7 +318,7 @@ class MainActivity : AppCompatActivity() {
         return navController.navigateUp(appBarConfiguration)
                 || super.onSupportNavigateUp()
     }
-    /*
+
     public override fun onStart() {
         super.onStart()
         val currentUser = auth.currentUser
@@ -333,7 +333,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-     */
+
 
     override fun onBackPressed() {
         if(backPressedTime + 3000 > System.currentTimeMillis()){

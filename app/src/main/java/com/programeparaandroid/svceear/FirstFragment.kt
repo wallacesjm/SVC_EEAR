@@ -18,6 +18,8 @@ import android.widget.*
 import androidx.fragment.app.Fragment
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.*
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -33,6 +35,7 @@ class FirstFragment : Fragment() {
     private var _binding: FragmentFirstBinding? = null
     private lateinit var qrScanIntegrator: IntentIntegrator
     val db = Firebase.firestore
+    private lateinit var auth: FirebaseAuth
     var acessoDuplicado : Boolean = false
     lateinit var progressBar : ProgressBar
 
@@ -53,6 +56,7 @@ class FirstFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         setHasOptionsMenu(true)
         super.onCreate(savedInstanceState)
+        auth = Firebase.auth
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -316,7 +320,23 @@ class FirstFragment : Fragment() {
     }
 
     private fun setOnClickListener() {
-        binding.btnScan.setOnClickListener { performAction() }
+        binding.btnScan.setOnClickListener {
+            val currentUser = auth.currentUser
+            if (currentUser != null) {
+                if (currentUser.email?.isNotEmpty() == true) {
+
+                    Toast.makeText(activity, "A leitura de QRCode não é permitida para o Administrador. Por favor digite o número do documento manualmente ou efetue logoff.", Toast.LENGTH_LONG).show()
+
+                } else {
+                    performAction()
+                }
+            } else {
+                performAction()
+            }
+
+
+
+        }
     }
 
     private fun performAction() {
